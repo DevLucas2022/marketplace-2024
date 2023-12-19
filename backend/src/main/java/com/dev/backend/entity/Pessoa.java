@@ -2,10 +2,13 @@ package com.dev.backend.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.Setter;
 import org.hibernate.validator.constraints.br.CPF;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 @Entity
@@ -33,9 +36,18 @@ public class Pessoa {
     @JoinColumn(name = "idCidade")
     private Cidade cidade;
 
-    public Pessoa(String nome,Long id, String cpf, String email, String senha, String endereco, String cep, Date dataCriacao, Date dataAtualizacao, Cidade cidade) {
-        this.nome = nome;
+    @OneToMany(mappedBy = "pessoa", orphanRemoval = true, cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
+    //@Setter(value = AccessLevel.NONE)
+    private List<PermissaoPessoa> permissaoPessoas;
+
+
+
+    public Pessoa() {
+    }
+
+    public Pessoa(Long id, String nome, String cpf, String email, String senha, String endereco, String cep, Date dataCriacao, Date dataAtualizacao, Cidade cidade, List<PermissaoPessoa> permissaoPessoas) {
         this.id = id;
+        this.nome = nome;
         this.cpf = cpf;
         this.email = email;
         this.senha = senha;
@@ -44,9 +56,7 @@ public class Pessoa {
         this.dataCriacao = dataCriacao;
         this.dataAtualizacao = dataAtualizacao;
         this.cidade = cidade;
-    }
-
-    public Pessoa() {
+        this.permissaoPessoas = permissaoPessoas;
     }
 
     public Long getId() {
@@ -127,5 +137,16 @@ public class Pessoa {
 
     public void setNome(String nome) {
         this.nome = nome;
+    }
+
+    public void setPermissaoPessoas(List<PermissaoPessoa> pp){
+        for(PermissaoPessoa p:pp){
+            p.setPessoa(this);
+        }
+        this.permissaoPessoas = pp;
+    }
+
+    public List<PermissaoPessoa> getPermissaoPessoas() {
+        return permissaoPessoas;
     }
 }
